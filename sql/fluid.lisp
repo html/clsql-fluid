@@ -135,6 +135,25 @@ NEW-VALUE."
   pool and forwards database API calls to the thread's backing
   database connection."))
 
+(defparameter *error-on-print-object-p* t
+  "Displays database object always, instead of throwing error in case of sql-database-error")
+
+(defmethod print-object ((object fluid-database) stream)
+  (if *error-on-print-object-p* 
+      (return-from print-object (call-next-method)))
+
+  (let* ((successp t)
+         (string (handler-case (with-output-to-string (s)
+                                 (call-next-method object s))
+                   (sql-database-error (c)
+                                       (setf successp nil)
+                                       c))))
+    (if successp
+        (write-string string stream)
+        (print-unreadable-object (object stream :type t :identity t)
+          (format stream "\"~A\"" string))))
+  object)
+
 (defmethod initialize-instance :after
     ((fd fluid-database) &key connection-spec database-type &allow-other-keys)
   (setf (slot-value fd 'sub-pool)
@@ -246,5 +265,6 @@ positions specialized on `fluid-database', and NIL in other places."
 ;; If a DB interface function with a db-type or database parameter is
 ;; not mentioned above, it is a bug.
 (export 'fluid-database)
+(export '*error-on-print-object-p*)
 (import 'fluid-database '#:clsql)
 (export 'fluid-database '#:clsql)
