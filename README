@@ -12,3 +12,5 @@ information about this branch at
 http://repo.or.cz/w/clsql/s11.git?a=shortlog;h=refs/heads/fluid-pools
 
 Please do not submit Darcs patches.
+
+Thanks for clsql-sys:*error-on-print-object-p* option code to Jocelyn Fréchot <jocelyn.frechot@u-bordeaux.fr>
